@@ -90,20 +90,6 @@ C:\xampp\htdocs\e-belge-project
 http://localhost/e-belge-project
 ```
 
----
-
-## 📸 Ekran Görüntüleri
-
-### Dashboard & Fatura Listesi
-![Dashboard](https://i.imgur.com/placeholder.png)
-
-> Özet kartlar, sekme navigasyonu ve fatura tablosu
-
-### Fatura Detay Modal
-> AJAX ile sayfa yenilemeden açılan detay penceresi
-
----
-
 ## 📌 Mimari Notlar
 
 - **InvoiceAPI.php** — Gerçek uygulamada GİB SOAP/REST servislerine bağlanır. Demo amaçlı sabit verilerle çalışmaktadır.
