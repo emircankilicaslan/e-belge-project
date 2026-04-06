@@ -109,6 +109,7 @@ http://localhost/e-belge-project
 - **InvoiceAPI.php** — Gerçek uygulamada GİB SOAP/REST servislerine bağlanır. Demo amaçlı sabit verilerle çalışmaktadır.
 - **invoice_detail.php** — RESTful AJAX endpoint. `GET ?uuid=...` ile fatura detayını JSON döndürür.
 - **UBL-TR** — Türkiye'de GİB tarafından zorunlu tutulan XML standardı. Tüm e-belgeler bu formatta iletilir.
+<img width="1894" height="895" alt="image" src="https://github.com/user-attachments/assets/36a56dbc-bd3e-4567-8b70-dd0c42691784" />
 
 ---
 
