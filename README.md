@@ -9,10 +9,6 @@ PHP ve JavaScript ile geliştirilmiş, GİB (Gelir İdaresi Başkanlığı) öze
 
 ---
 
-## 📋 Proje Hakkında
-
-Bu proje, **DestanFY Web Developer** ön eleme sürecinde hazırlanmıştır. e-Belge özel entegratörlük sistemi kapsamında bir mükellefe ait alış ve satış faturalarını listeleyen, filtreleyen ve detaylı olarak görüntüleyen tam işlevsel bir web uygulamasıdır.
-
 ### e-Belge Özel Entegratörlük Nedir?
 
 GİB (Gelir İdaresi Başkanlığı) tarafından yetkilendirilmiş özel entegratörler, mükelleflerin e-Fatura, e-Arşiv, e-İrsaliye gibi elektronik belgelerini kendi platformları üzerinden oluşturmasına, iletmesine ve yönetmesine aracılık eder. Entegratörlük başvurusu GİB portalı üzerinden teknik belgeler sunularak yapılır; altyapı ve güvenlik testleri geçildikten sonra yetki verilir.
