@@ -1,5 +1,7 @@
 # 🧾 e-Belge Sistemi
 
+![CI](https://github.com/emircankilicaslan/e-belge-project/actions/workflows/ci.yml/badge.svg)
+
 PHP ve JavaScript ile geliştirilmiş, GİB (Gelir İdaresi Başkanlığı) özel entegratörlük altyapısına uygun **e-Fatura / e-Arşiv** alış-satış fatura yönetim uygulaması.
 
 ![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?style=for-the-badge&logo=php&logoColor=white)
@@ -22,9 +24,10 @@ GİB (Gelir İdaresi Başkanlığı) tarafından yetkilendirilmiş özel entegra
 - 🛒 **Alış Faturaları** — Tedarikçilerden gelen alış faturalarını listeler
 - 🔍 **Gelişmiş Filtreleme** — Tarih aralığı, belge tipi, durum ve metin araması
 - 👁️ **AJAX Detay Modal** — Fatura detaylarını sayfa yenilemeden görüntüler
-- 📄 **PDF / XML İndirme** — UBL-TR formatında belge indirme desteği
+- 🧾 **UBL-TR XML İndirme** — Sunucuda üretilen sadeleştirilmiş UBL 2.1 XML (satır ve imza yok; e-İrsaliye için üretilmez)
+- 🖨️ **Yazdırılabilir Fatura / PDF** — Yazdırılabilir görünüm; tarayıcıdan "PDF olarak kaydet" ile PDF alınır (demo, yasal e-Fatura görseli değildir)
 - 📱 **Responsive Tasarım** — Mobil uyumlu arayüz
-- 🔒 **XSS Koruması** — Kullanıcı verisi güvenli şekilde işlenir
+- 🔒 **Girdi Doğrulama ve XSS Koruması** — Sorgu parametreleri beyaz listeyle doğrulanır, çıktılar kaçışlanır, güvenlik başlıkları gönderilir
 - 📝 **Açıklamalı Kod** — Tüm satırlar Türkçe yorumlarla belgelenmiştir
 
 ---
@@ -64,8 +67,8 @@ e-belge-project/
 ## 🚀 Kurulum
 
 ### Gereksinimler
-- PHP 8.0+
-- Apache (XAMPP önerilir)
+- PHP 8.1+ (`dom` ve `mbstring` eklentileri)
+- Apache (XAMPP) **veya** PHP'nin yerleşik sunucusu
 
 ### Adımlar
 
@@ -86,10 +89,32 @@ C:\xampp\htdocs\e-belge-project
 http://localhost/e-belge-project
 ```
 
+### Hızlı çalıştırma (XAMPP'siz)
+
+```bash
+php -S localhost:8000
+# http://localhost:8000
+```
+
+Hatalar varsayılan olarak ekrana yazılmaz; geliştirme için `APP_DEBUG=1` ortam değişkenini verin.
+
+## ✅ Test ve CI
+
+```bash
+composer install
+vendor/bin/phpunit     # 25 test
+```
+
+Testler; girdi doğrulama (dizi enjeksiyonu, geçersiz tarih/UUID), filtreleme/sayfalama, Türkçe karakterli arama, özet hesapları ve UBL XML üretimini (iyi biçimlilik, taraf yönü, tutar/para birimi, özel karakter kaçışı) kapsar. GitHub Actions, PHP 8.2 ve 8.3'te sözdizimi denetimi ve testleri her push'ta çalıştırır.
+
+> Özet kartlarındaki toplamlar yalnızca TRY faturaları kapsar; farklı para birimleri (ör. EUR ihracat faturası) TL toplamına karıştırılmaz.
 ## 📌 Mimari Notlar
 
 - **InvoiceAPI.php** — Gerçek uygulamada GİB SOAP/REST servislerine bağlanır. Demo amaçlı sabit verilerle çalışmaktadır.
 - **invoice_detail.php** — RESTful AJAX endpoint. `GET ?uuid=...` ile fatura detayını JSON döndürür.
+- **Filters.php** — Tüm kullanıcı girdilerini doğrular (tip, tarih, beyaz liste, uzunluk).
+- **InvoiceXml.php / download_xml.php** — Fatura için sadeleştirilmiş UBL-TR XML üretir ve indirir.
+- **invoice_print.php** — Yazdırılabilir fatura görünümü.
 - **UBL-TR** — Türkiye'de GİB tarafından zorunlu tutulan XML standardı. Tüm e-belgeler bu formatta iletilir.
 <img width="1894" height="895" alt="image" src="https://github.com/user-attachments/assets/36a56dbc-bd3e-4567-8b70-dd0c42691784" />
 

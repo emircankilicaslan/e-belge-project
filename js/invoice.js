@@ -3,8 +3,8 @@
  * 
  * Bu dosya faturalarla ilgili tüm JavaScript işlemlerini yönetir:
  *   1. AJAX ile fatura detayı çekme ve modal'da gösterme
- *   2. PDF indirme simülasyonu
- *   3. XML (UBL-TR) indirme simülasyonu
+ *   2. PDF (yazdırılabilir görünüm)
+ *   3. XML (UBL-TR) indirme
  *   4. Tablo satırlarına çift tıklama özelliği
  * 
  * Kütüphane: Saf JavaScript (Vanilla JS), fetch API kullanılmıştır.
@@ -187,11 +187,11 @@ function renderInvoiceDetail(inv, container, titleEl) {
 
         <!-- Alt İşlem Butonları -->
         <div style="display:flex; gap:10px; margin-top:24px; flex-wrap:wrap;">
-            <button onclick="downloadPDF('${inv.uuid}')"
+            <button onclick="downloadPDF('${escapeHtml(inv.uuid)}')"
                     class="btn btn--secondary" style="flex:1; justify-content:center;">
                 <i class="fa-regular fa-file-pdf"></i> PDF İndir
             </button>
-            <button onclick="downloadXML('${inv.uuid}')"
+            <button onclick="downloadXML('${escapeHtml(inv.uuid)}')"
                     class="btn btn--secondary" style="flex:1; justify-content:center;">
                 <i class="fa-solid fa-code"></i> UBL-TR XML
             </button>
@@ -208,23 +208,15 @@ function renderInvoiceDetail(inv, container, titleEl) {
    ============================================================ */
 
 /**
- * Faturanın PDF versiyonunu indirir.
- * 
- * Gerçek uygulamada:
- *  - Sunucu tarafında TCPDF veya FPDF ile PDF üretilir
- *  - GİB'in onaylı PDF şablonu kullanılır (e-Fatura görsel formatı)
- *  - Content-Disposition: attachment header'ı ile indirilir
- * 
+ * Yazdırılabilir fatura görünümünü yeni sekmede açar ve yazdır diyaloğunu tetikler;
+ * kullanıcı "PDF olarak kaydet" ile PDF alır (demo görünüm, yasal e-Fatura görseli değildir).
+ *
  * @param {string} uuid - Fatura UUID'i
  */
 function downloadPDF(uuid) {
-    showToast('PDF hazırlanıyor, lütfen bekleyin...', 'info', 2000);
-
-    // Gerçek uygulamada: window.location.href = `api/download_pdf.php?uuid=${uuid}`;
-    // Demo: 1.5 saniye simülasyon
-    setTimeout(() => {
-        showToast('PDF indirildi: ' + uuid + '.pdf', 'success');
-    }, 1500);
+    const url = `api/invoice_print.php?uuid=${encodeURIComponent(uuid)}&print=1`;
+    const win = window.open(url, '_blank', 'noopener');
+    if (!win) showToast('Açılır pencere engellendi, lütfen izin verin.', 'error');
 }
 
 /* ============================================================
@@ -232,24 +224,30 @@ function downloadPDF(uuid) {
    ============================================================ */
 
 /**
- * Faturanın UBL-TR formatındaki XML dosyasını indirir.
- * 
- * UBL-TR (Universal Business Language - Türkiye):
- *  - GİB tarafından zorunlu tutulan XML standardıdır
- *  - ISO/IEC 19845 standardına dayanır
- *  - e-Fatura, e-Arşiv, e-İrsaliye için kullanılır
- * 
+ * Sunucuda üretilen sadeleştirilmiş UBL-TR XML dosyasını indirir.
+ * e-İrsaliye için XML üretilemez; sunucu 422 döner ve kullanıcıya bildirilir.
+ *
  * @param {string} uuid - Fatura UUID'i
  */
-function downloadXML(uuid) {
-    showToast('UBL-TR XML hazırlanıyor...', 'info', 2000);
-
-    // Gerçek uygulamada: window.location.href = `api/download_xml.php?uuid=${uuid}`;
-    setTimeout(() => {
-        showToast('XML indirildi: ' + uuid + '.xml', 'success');
-    }, 1500);
+async function downloadXML(uuid) {
+    try {
+        const res = await fetch(`api/download_xml.php?uuid=${encodeURIComponent(uuid)}`);
+        if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            showToast(data.error || 'XML indirilemedi.', 'error');
+            return;
+        }
+        const blob = await res.blob();
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `${uuid}.xml`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        showToast(`XML indirildi: ${uuid}.xml`, 'success');
+    } catch {
+        showToast('Sunucuya ulaşılamadı.', 'error');
+    }
 }
-
 /* ============================================================
    4. TABLO SATIRI ÇIFT TIKLAMA
    ============================================================ */

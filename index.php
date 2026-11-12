@@ -1,47 +1,18 @@
 <?php
+declare(strict_types=1);
 
+require_once __DIR__ . '/api/bootstrap.php';
+sendSecurityHeaders();
 
+$currentUser = currentUser();
+$invoiceAPI  = new InvoiceAPI();
 
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
-
-session_start();
-
-
-require_once 'api/InvoiceAPI.php';
-require_once 'api/User.php';
-
-
-$currentUser = new User(
-    id: 1,
-    name: 'Ahmet Yılmaz',
-    vkn: '1234567890',         // Vergi Kimlik Numarası
-    companyName: 'Yılmaz Ticaret A.Ş.',
-    taxOffice: 'Kadıköy VD'
-);
-
-// InvoiceAPI sınıfı ile fatura verilerini çek
-$invoiceAPI = new InvoiceAPI();
-
-// GET parametresine göre fatura tipini belirle (varsayılan: 'sales' = satış)
-$activeTab = $_GET['tab'] ?? 'sales';
-$activeTab = in_array($activeTab, ['sales', 'purchase']) ? $activeTab : 'sales';
-
-
-$page    = max(1, (int)($_GET['page'] ?? 1));
-$perPage = 10;
-$offset  = ($page - 1) * $perPage;
-
-// Filtre parametrelerini al
-$filters = [
-    'startDate'   => $_GET['startDate']   ?? '',
-    'endDate'     => $_GET['endDate']     ?? '',
-    'status'      => $_GET['status']      ?? '',
-    'docType'     => $_GET['docType']     ?? '',
-    'searchQuery' => $_GET['searchQuery'] ?? '',
-];
-
+// Tüm girdiler doğrulanır (dizi enjeksiyonu, geçersiz tarih/durum elenir).
+$activeTab = Filters::tab($_GET);
+$page      = Filters::page($_GET);
+$filters   = Filters::fromQuery($_GET);
+$perPage   = 10;
+$offset    = ($page - 1) * $perPage;
 // Fatura listesini getir
 if ($activeTab === 'sales') {
     $invoices = $invoiceAPI->getSalesInvoices($currentUser->vkn, $filters, $perPage, $offset);

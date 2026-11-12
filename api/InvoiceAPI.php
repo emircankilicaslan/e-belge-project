@@ -206,33 +206,36 @@ class InvoiceAPI
      */
     public function getInvoiceByUUID(string $uuid): ?array
     {
-        // Tüm faturalar arasında UUID ile ara
-        $allInvoices = array_merge($this->demoSales, $this->demoPurchases);
-        foreach ($allInvoices as $invoice) {
+        // Yön bilgisi (satış/alış) hangi listeden bulunduğuna göre eklenir.
+        foreach ($this->demoSales as $invoice) {
             if ($invoice['uuid'] === $uuid) {
-                return $invoice;
+                return $invoice + ['direction' => 'SALES'];
+            }
+        }
+        foreach ($this->demoPurchases as $invoice) {
+            if ($invoice['uuid'] === $uuid) {
+                return $invoice + ['direction' => 'PURCHASE'];
             }
         }
         return null;
     }
-
     /**
      * Dashboard özet istatistiklerini hesapla.
      * Gerçek uygulamada bu veriler veritabanı sorgularından gelir.
      */
     public function getSummary(string $vkn): array
     {
-        // Bu ay kabul edilen satışları topla
+        // Kabul edilen satışlar (yalnızca TRY; farklı para birimleri toplanmaz)
         $monthlySales = array_filter(
             $this->demoSales,
-            fn($i) => $i['status'] === 'ACCEPTED'
+            fn($i) => $i['status'] === 'ACCEPTED' && $i['currency'] === 'TRY'
         );
         $salesTotal = array_sum(array_column($monthlySales, 'total'));
 
         // Bu ay kabul edilen alışları topla
         $monthlyPurchases = array_filter(
             $this->demoPurchases,
-            fn($i) => $i['status'] === 'ACCEPTED'
+            fn($i) => $i['status'] === 'ACCEPTED' && $i['currency'] === 'TRY'
         );
         $purchaseTotal = array_sum(array_column($monthlyPurchases, 'total'));
 
@@ -302,9 +305,10 @@ class InvoiceAPI
 
             // Metin arama (fatura no veya firma adı)
             if (!empty($filters['searchQuery'])) {
-                $query = strtolower($filters['searchQuery']);
-                $inNumber = stripos($invoice['invoiceNumber'], $query) !== false;
-                $inName   = stripos($invoice['partyName'],     $query) !== false;
+                // mb_stripos: Türkçe karakterli (Ş, Ü, Ç...) firma adlarında büyük/küçük harf duyarsız arama
+                $query = (string) $filters['searchQuery'];
+                $inNumber = mb_stripos($invoice['invoiceNumber'], $query, 0, 'UTF-8') !== false;
+                $inName   = mb_stripos($invoice['partyName'],     $query, 0, 'UTF-8') !== false;
                 if (!$inNumber && !$inName) {
                     return false;
                 }
