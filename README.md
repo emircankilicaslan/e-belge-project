@@ -50,6 +50,15 @@ e-belge-project/
 
 ---
 
+## 🖼️ Ekran Görüntüleri
+
+Uygulamanın yerelde çalışan hali (demo verisiyle):
+
+![Panel ve fatura listesi](docs/screenshots/panel.jpg)
+
+![Fatura detayı](docs/screenshots/fatura-detay.jpg)
+
+---
 ## 🛠️ Kullanılan Teknolojiler
 
 | Teknoloji | Açıklama |
