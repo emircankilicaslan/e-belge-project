@@ -1,6 +1,6 @@
 # 🧾 e-Belge Sistemi
 
-![CI](https://github.com/emircankilicaslan/e-belge-project/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/emircankilicaslan/e-belge-project/actions/workflows/ci.yml/badge.svg) ![Lisans: MIT](https://img.shields.io/badge/Lisans-MIT-green.svg)
 
 PHP ve JavaScript ile geliştirilmiş, GİB (Gelir İdaresi Başkanlığı) özel entegratörlük altyapısına uygun **e-Fatura / e-Arşiv** alış-satış fatura yönetim uygulaması.
 
@@ -138,4 +138,6 @@ Testler; girdi doğrulama (dizi enjeksiyonu, geçersiz tarih/UUID), filtreleme/s
 
 ---
 
+## Lisans
 
+Bu proje [MIT Lisansı](LICENSE) ile paylaşılmaktadır.
